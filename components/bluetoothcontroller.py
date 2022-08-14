@@ -161,9 +161,6 @@ class BluetoothController(object):
             return
         device_properties = BluetoothController.get_device_properties_by_path(self._system_bus, path)
 
-        # for prop in device_properties:
-            # BluetoothController.log(msg=f"[NEW] {prop} : {device_properties[prop]}", log_type=self.log_type)
-
         self.device_counter += 1
 
         if self._on_new_device_found is not None:
