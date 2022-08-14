@@ -10,8 +10,6 @@ class BluetoothConstants:
     OBEX_TRANSFER_INTERFACE = 'org.bluez.obex.Transfer1'
     OBEX_SESSION_INTERFACE = 'org.bluez.obex.Session1'
 
-    AGENT_PATH = "/amperino/bluetooth/agent"
-    OBEX_AGENT_PATH = "/amperino/bluetooth/obex"
     AGENT_INTERFACE = 'org.bluez.Agent1'
     WATCH_RSSI = True
     MIN_ACCEPTABLE_VALUE_RSSI = -70
