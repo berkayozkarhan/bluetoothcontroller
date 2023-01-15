@@ -1,7 +1,10 @@
 import components.conf as c
 import dbus
 import re
+from common.logger import Logger
 
+logger = Logger(app_name="btcontroller")
+log_direct = logger.log_direct
 
 class BluezUtilError(Exception):
     pass
