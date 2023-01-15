@@ -1,3 +1,5 @@
+import time
+
 import dbus
 import threading
 import components.conf as c
@@ -125,6 +127,98 @@ class Adapter:
             return False
 
         return True
+
+
+class BluetoothScanner:
+    SCAN_IN_PROGRESS = 9
+    SCAN_STARTED = 8
+
+    def __init__(self):
+        self.is_running = False
+        self.done = None
+
+        self._system_bus = None
+
+        self.__adapter = Adapter()
+        self._scanner_mainloop = None
+        self._timer_id = None
+
+        self._callback_mutex = threading.RLock()
+
+        # signals.
+        self._new_device_discovered = None
+        self._completed = None
+
+        self._scanner_thread = None
+        DBusGMainLoop(set_as_default=True)
+
+    @property
+    def on_completed(self):
+        return self._completed
+
+    @on_completed.setter
+    def on_completed(self, func):
+        with self._callback_mutex:
+            self._completed = func
+
+    @property
+    def new_device_discovered(self):
+        return self._new_device_discovered
+
+    @new_device_discovered.setter
+    def new_device_discovered(self, func):
+        with self._callback_mutex:
+            self._new_device_discovered = func
+
+    def start_discovery_blocking(self, scan_sec=15):
+        if self.is_running:
+            u.log_direct("[scanner] Already running.", c.LOG_TYPE)
+            return False
+
+        DBusGMainLoop(set_as_default=True)
+        self._system_bus = dbus.SystemBus()
+        self._scanner_mainloop = GObject.MainLoop()
+
+        self._system_bus.add_signal_receiver(self.new_device_discovered, dbus_interface=c.BluetoothConstants.DBUS_OM_IFACE,
+                                             signal_name="InterfacesAdded")
+
+        self.__adapter.start_discovery()
+        self._timer_id = GObject.timeout_add(scan_sec * 1000, self.scan_timeout)
+
+        self.is_running = True
+        self._scanner_mainloop.run()
+
+    def loop(self):
+        while self.is_running:
+            u.log_direct("[scanner] Loop.", c.LOG_TYPE)
+            time.sleep(3)
+
+        u.log_direct("[scanner] Loop quit.", c.LOG_TYPE)
+
+    def scan_timeout(self):
+        if self._timer_id is not None:
+            GObject.source_remove(self._timer_id)
+
+        if self._scanner_mainloop is not None:
+            self._scanner_mainloop.quit()
+
+        self.__adapter.stop_discovery()
+
+        self._system_bus.remove_signal_receiver(self.new_device_found, "InterfacesAdded")
+
+        self._timer_id = None
+        self.is_running = False
+        self._scanner_thread = None
+
+        if self._completed is not None:
+            self._completed()
+
+    def new_device_found(self, path, interfaces):
+        if c.BluetoothConstants.DEVICE_INTERFACE not in interfaces:
+            return
+        device_properties = u.get_device_properties_by_path(path)
+        if self._new_device_discovered is not None:
+            self._new_device_discovered(device_properties)
 
 
 class OperationModes:
