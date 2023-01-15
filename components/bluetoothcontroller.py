@@ -5,6 +5,126 @@ import components.utils as u
 from gi.repository import GObject
 from dbus.mainloop.glib import DBusGMainLoop
 
+class Adapter:
+    def __init__(self):
+        self.__adapter_interface = u.get_bt_adapter()
+        self.__properties_interface = u.get_adapter_props_iface()
+
+        self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
+
+    @property
+    def uuids(self):
+        self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
+        uuids = u.dbus_to_python(self.__adapter_properties['UUIDS'])
+        return uuids
+
+    @property
+    def discoverable(self):
+        self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
+        discoverable = u.dbus_to_python(self.__adapter_properties['Discoverable'])
+        return discoverable
+
+    @property
+    def discovering(self):
+        self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
+        discovering = u.dbus_to_python(self.__adapter_properties['Discovering'])
+        return discovering
+
+    @property
+    def pairable(self):
+        self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
+        pairable = u.dbus_to_python(self.__adapter_properties['Pairable'])
+        return pairable
+
+    @property
+    def powered(self):
+        self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
+        powered = u.dbus_to_python(self.__adapter_properties['Powered'])
+        return powered
+
+    @property
+    def address(self):
+        self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
+        address = u.dbus_to_python(self.__adapter_properties['Address'])
+        return address
+
+    @property
+    def alias(self):
+        self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
+        alias = u.dbus_to_python(self.__adapter_properties['Alias'])
+        return alias
+
+    def modalias(self):
+        self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
+        modalias = u.dbus_to_python(self.__adapter_properties['Modalias'])
+        return modalias
+
+    @property
+    def name(self):
+        self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
+        name = u.dbus_to_python(self.__adapter_properties['Name'])
+        return name
+
+    @property
+    def _class(self):
+        self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
+        _class = u.dbus_to_python(self.__adapter_properties['Class'])
+        return _class
+
+    @property
+    def discoverable_timeout(self):
+        self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
+        discoverable_timeout = u.dbus_to_python(self.__adapter_properties['DiscoverableTimeout'])
+        return discoverable_timeout
+
+    @property
+    def pairable_timeout(self):
+        self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
+        pairable_timeout = u.dbus_to_python(self.__adapter_properties['PairableTimeout'])
+        return pairable_timeout
+
+    def set_discoverable(self, discoverable: bool):
+        self.__properties_interface.Set('org.bluez.Adapter1', 'Discoverable', discoverable)
+
+    def set_pairable(self, pairable: bool):
+        self.__properties_interface.Set('org.Bluez.Adapter1', 'Pairable', pairable)
+
+    def set_powered(self, powered: bool):
+        self.__properties_interface.Set('org.bluez.Adapter1', 'Powered', powered)
+
+    def set_alias(self, alias: str):
+        self.__properties_interface.Set('org.bluez.Adapter1', 'Alias', alias)
+
+    def set_discoverable_timeout(self, discoverable_timeout: int):
+        self.__properties_interface.Set('org.bluez.Adapter1', 'DiscoverableTimeout', discoverable_timeout)
+
+    def set_pairable_timeout(self, pairable_timeout: int):
+        self.__properties_interface.Set('org.bluez.Adapter1', 'PairableTimeout', pairable_timeout)
+
+    def start_discovery(self):
+        """
+        Return : true(success), false(fail)
+        """
+        try:
+            self.__adapter_interface.StartDiscovery(byte_arrays=True)
+        except dbus.exceptions.DBusException as e:
+            u.log_direct(f"Error at Adapter.start_discovery() : {str(e.args)}", c.LOG_TYPE)
+            return False
+
+        return True
+
+    def stop_discovery(self):
+        """
+        Return : true(success), false(fail)
+        """
+        try:
+            self.__adapter_interface.StopDiscovery()
+        except dbus.exceptions.DBusException as e:
+            u.log_direct(f"Error at Adapter.stop_discovery() : {str(e.args)}", c.LOG_TYPE)
+            return False
+
+        return True
+
 
 class OperationModes:
     SCAN_ALL = 'scan-all'
