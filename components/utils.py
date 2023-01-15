@@ -2,8 +2,10 @@ import components.conf as c
 import dbus
 import re
 from common.logger import Logger
+import threading
 
-logger = Logger(app_name="btcontroller")
+lock = threading.Lock()
+logger = Logger(app_name="btcontroller", lock=lock)
 log_direct = logger.log_direct
 
 class BluezUtilError(Exception):
