@@ -178,6 +178,38 @@ def remove_device(bd_addr: str):
     return res
 
 
+def get_device_iface_by_path(device_path: str):
+    """
+        Get remote bluetooth device interface.
+        param device_path : path of device ( e.g. : /org/bluez/hci0/dev_12_34_44_00_66_D5 )
+        return : Device interface object(dbus.Interface) that contains the methods specified below.
+            * CancelPairing
+            * Connect
+            * ConnectProfile
+            * Disconnect
+            * DisconnectProfile
+            * Pair
+    """
+    bus = dbus.SystemBus()
+    obj = bus.get_object(c.BluetoothConstants.BLUEZ_SERVICE_NAME, device_path)
+    device = dbus.Interface(obj, c.BluetoothConstants.DEVICE_INTERFACE)
+    return device
+
+
+def get_adapter_props_iface():
+    bus = dbus.SystemBus()
+    adapter_object = bus.get_object(c.BluetoothConstants.BLUEZ_SERVICE_NAME, c.BluetoothConstants.ADAPTER_PATH)
+    return dbus.Interface(adapter_object, c.BluetoothConstants.DBUS_PROPERTIES)
+
+
+def get_bt_adapter():
+    """
+    Return : adapter_interface & props_iface as tuple (adapter_interface, props_iface)
+    """
+    adapter_interface = find_adapter()
+    return adapter_interface
+
+
 def get_device_properties_by_path(path):
     bus = dbus.SystemBus()
     obj = bus.get_object(c.BluetoothConstants.BLUEZ_SERVICE_NAME, path)
