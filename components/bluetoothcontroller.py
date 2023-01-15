@@ -5,6 +5,7 @@ import components.utils as u
 from gi.repository import GObject
 from dbus.mainloop.glib import DBusGMainLoop
 
+
 class Adapter:
     def __init__(self):
         self.__adapter_interface = u.get_bt_adapter()
@@ -15,7 +16,7 @@ class Adapter:
     @property
     def uuids(self):
         self.__adapter_properties = self.__properties_interface.GetAll('org.bluez.Adapter1')
-        uuids = u.dbus_to_python(self.__adapter_properties['UUIDS'])
+        uuids = u.dbus_to_python(self.__adapter_properties['UUIDs'])
         return uuids
 
     @property
@@ -87,7 +88,7 @@ class Adapter:
         self.__properties_interface.Set('org.bluez.Adapter1', 'Discoverable', discoverable)
 
     def set_pairable(self, pairable: bool):
-        self.__properties_interface.Set('org.Bluez.Adapter1', 'Pairable', pairable)
+        self.__properties_interface.Set('org.bluez.Adapter1', 'Pairable', pairable)
 
     def set_powered(self, powered: bool):
         self.__properties_interface.Set('org.bluez.Adapter1', 'Powered', powered)
@@ -374,5 +375,3 @@ class BluetoothController(object):
         for prop in self.__dict__:
             BluetoothController.log(msg=f"{prop} : {self.__dict__[prop]}", log_type=self.log_type)
         BluetoothController.log(msg="#" * 15, log_type=self.log_type)
-
-
