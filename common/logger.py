@@ -11,7 +11,7 @@ class Logger:
     * Multiple available. example : "cf"
     """
 
-    def __init__(self, app_name, lock: threading.Lock, file_name: None):
+    def __init__(self, app_name, lock: threading.Lock, file_name=None):
         self.app_name = app_name
         self.file_name = file_name
         self.lock = lock
